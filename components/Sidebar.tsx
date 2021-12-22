@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HeartIcon, HomeIcon, LibraryIcon, PlusCircleIcon, RssIcon, SearchIcon } from '@heroicons/react/outline';
 import { signOut, useSession } from 'next-auth/react';
+import useSpotify from 'hooks/useSpotify';
 
 const Sidebar: React.FC = () => {
-  const { data: session, status } = useSession();
+  const spotifyApi = useSpotify();
 
-  console.log(session);
+  const { data: session, status } = useSession();
+  const [playlists, setPlaylists] = useState<SpotifyApi.PlaylistObjectSimplified[]>([]);
+  const [playlistId, setPlaylistId] = useState<null | string>(null);
+
+  useEffect(() => {
+    if (!spotifyApi.getAccessToken()) {
+      return;
+    }
+
+    spotifyApi.getUserPlaylists().then((response) => {
+      setPlaylists(response.body.items);
+    });
+  }, [session, spotifyApi]);
 
   return (
     <div className="text-gray-500 p-5 text-sm border-gray-900 overflow-y-scroll h-screen scrollbar-hide ">
@@ -43,14 +56,11 @@ const Sidebar: React.FC = () => {
 
         <hr className="border-t-[0.1px] border-gray-900" />
 
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
-        <p className="cursor-pointer hover:text-white">Playlist name...</p>
+        {playlists.map((playlist) => (
+          <p onClick={() => setPlaylistId(playlist.id)} key={playlist.id} className="cursor-pointer hover:text-white">
+            {playlist.name}
+          </p>
+        ))}
       </div>
     </div>
   );

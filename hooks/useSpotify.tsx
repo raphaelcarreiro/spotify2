@@ -17,7 +17,7 @@ export default function useSpotify() {
       }
     }
 
-    spotifyApi.setAccessToken(session.user.accessToken);
+    spotifyApi.setAccessToken(session?.user.accessToken);
   }, [session]);
 
   return spotifyApi;
